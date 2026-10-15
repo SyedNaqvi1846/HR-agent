@@ -141,19 +141,15 @@ export default function Home() {
 
   // Handle CV Ingest
   const handleStartInterview = async () => {
-    if (!uploadedFile && !demoId) {
-      alert("Please upload a resume or select a sample candidate to start.");
+    if (!uploadedFile) {
+      alert("Please upload a candidate CV / resume (PDF, DOCX, or TXT) to begin.");
       return;
     }
 
     setIsIngesting(true);
     try {
       const formData = new FormData();
-      if (uploadedFile) {
-        formData.append("file", uploadedFile);
-      } else {
-        formData.append("demoId", demoId);
-      }
+      formData.append("file", uploadedFile);
 
       const headers: Record<string, string> = {};
       if (apiKey.trim()) headers["x-gemini-api-key"] = apiKey.trim();
@@ -411,12 +407,14 @@ export default function Home() {
               </div>
 
               {/* Upload Dropzone */}
-              <label className="border-2 border-dashed border-sky-500/30 hover:border-sky-500/60 rounded-xl p-6 flex flex-col items-center justify-center cursor-pointer transition-all bg-slate-950/40 hover:bg-slate-950/70">
-                <Upload className="w-8 h-8 text-sky-400 mb-2 animate-bounce" />
-                <span className="text-sm font-semibold text-slate-200">
-                  {uploadedFile ? uploadedFile.name : "Click or drag resume here (PDF or DOCX)"}
+              <label className="border-2 border-dashed border-sky-500/30 hover:border-sky-500/60 rounded-xl p-8 flex flex-col items-center justify-center cursor-pointer transition-all bg-slate-950/40 hover:bg-slate-950/70 min-h-[220px]">
+                <Upload className="w-10 h-10 text-sky-400 mb-3 animate-bounce" />
+                <span className="text-base font-semibold text-slate-200 text-center">
+                  {uploadedFile ? uploadedFile.name : "Click or drag resume here (PDF, DOCX, or TXT)"}
                 </span>
-                <span className="text-xs text-slate-500 mt-1">Automatic text parsing & demographic sanitization</span>
+                <span className="text-xs text-slate-500 mt-2 text-center">
+                  Supports .pdf, .docx, and .txt formats with automated text parsing
+                </span>
                 <input
                   type="file"
                   accept=".pdf,.docx,.txt"
@@ -429,57 +427,6 @@ export default function Home() {
                   }}
                 />
               </label>
-
-              {/* Demo Profiles */}
-              <div className="space-y-2">
-                <span className="text-xs font-mono text-slate-400 uppercase tracking-wider font-semibold">
-                  Or Test With Preloaded Demo Candidates:
-                </span>
-                <div className="grid grid-cols-2 gap-3">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setDemoId("alice_smith");
-                      setUploadedFile(null);
-                    }}
-                    className={`p-3 rounded-lg border text-left transition-all text-xs ${
-                      demoId === "alice_smith"
-                        ? "bg-sky-500/15 border-sky-400 text-sky-300"
-                        : "bg-slate-900 border-slate-800 text-slate-400 hover:border-slate-700"
-                    }`}
-                  >
-                    <div className="font-bold text-white">Alice Smith</div>
-                    <div className="text-[11px] text-slate-400 mt-0.5">Python Backend (4 yrs)</div>
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setDemoId("bob_jones");
-                      setUploadedFile(null);
-                    }}
-                    className={`p-3 rounded-lg border text-left transition-all text-xs ${
-                      demoId === "bob_jones"
-                        ? "bg-sky-500/15 border-sky-400 text-sky-300"
-                        : "bg-slate-900 border-slate-800 text-slate-400 hover:border-slate-700"
-                    }`}
-                  >
-                    <div className="font-bold text-white">Bob Jones</div>
-                    <div className="text-[11px] text-slate-400 mt-0.5">Full-Stack React (3 yrs)</div>
-                  </button>
-                </div>
-              </div>
-
-              {/* Automatic Email Ingestion Badge */}
-              <div className="p-3.5 rounded-lg bg-sky-500/10 border border-sky-500/25 text-xs text-slate-300 space-y-1">
-                <div className="flex items-center gap-2 font-mono text-sky-400 font-bold uppercase tracking-wider text-[11px]">
-                  <Mail className="w-3.5 h-3.5" />
-                  <span>Automatic Email Ingestion Active</span>
-                </div>
-                <p className="text-[11px] text-slate-400">
-                  Candidate contact email is extracted directly from the uploaded CV. Candidates are never asked to provide it manually.
-                </p>
-              </div>
             </div>
 
             {/* Right Column: Role Benchmarks */}
@@ -528,7 +475,7 @@ export default function Home() {
               {/* Start Button */}
               <button
                 type="button"
-                disabled={isIngesting || (!uploadedFile && !demoId)}
+                disabled={isIngesting || !uploadedFile}
                 onClick={handleStartInterview}
                 className="w-full py-3.5 px-6 rounded-xl font-bold text-slate-950 bg-gradient-to-r from-sky-400 via-indigo-300 to-emerald-400 hover:opacity-95 transition-all shadow-lg shadow-sky-500/25 flex items-center justify-center gap-2 text-sm disabled:opacity-50 disabled:cursor-not-allowed"
               >
