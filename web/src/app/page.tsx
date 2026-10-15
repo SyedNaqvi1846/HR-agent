@@ -622,8 +622,14 @@ export default function Home() {
 
                       <div className="p-2.5 rounded-lg bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs font-mono flex items-center gap-2">
                         <CheckCircle2 className="w-4 h-4 shrink-0" />
-                        <span>Official decision email automatically sent to candidate</span>
+                        <span>Official decision email automatically dispatched</span>
                       </div>
+
+                      {emailJob.deliveryLog && (
+                        <div className="text-[11px] text-slate-400 font-mono bg-slate-950 p-2 rounded border border-slate-800/80">
+                          Status: {emailJob.deliveryLog}
+                        </div>
+                      )}
 
                       <p className="text-[11px] text-slate-500">
                         Please review your email inbox for the comprehensive update from our Talent Acquisition Committee.

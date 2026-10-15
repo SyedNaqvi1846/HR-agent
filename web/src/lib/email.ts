@@ -203,7 +203,7 @@ export async function sendEmailThroughSMTP(
   if (!user || !pass) {
     return {
       success: true,
-      log: `Simulated live delivery to ${toEmail} (SMTP credentials not configured in environment; archived to audit log).`
+      log: `Simulated delivery: SMTP_PASSWORD is not set in .env.local. Add your Gmail App Password to enable live inbox delivery.`
     };
   }
 
