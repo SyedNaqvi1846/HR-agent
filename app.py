@@ -1144,9 +1144,9 @@ Candidate email is automatically parsed directly from the uploaded CV / resume f
                 st.session_state["max_questions"] = 3
 
                 greeting_text = (
-                    f"Hello **{candidate_info.full_name}**. 👋 My name is **David**, your Technical AI HR Recruiter for today. "
-                    f"Welcome to your formal interview for the **{st.session_state['active_job_spec']['job_title']}** position at our company.\n\n"
-                    f"I have reviewed your CV, and we will be conducting an in-depth technical assessment today. "
+                    f"Hello **{candidate_info.full_name}**. 👋 My name is **David**, your AI HR Recruiter for today. "
+                    f"Welcome to your formal interview for the **{st.session_state['active_job_spec']['job_title']}** position at HR Contract.\n\n"
+                    f"I have reviewed your CV, and your contact email ({cand_email_to_use}) has been automatically indexed. "
                     f"To begin, **please introduce yourself, summarizing your professional engineering background and core technical expertise.**"
                 )
 

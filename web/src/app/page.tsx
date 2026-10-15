@@ -619,47 +619,45 @@ export default function Home() {
                 </div>
               ) : scorecard && emailJob ? (
                 <div className="space-y-5">
-                  {/* Verdict Card */}
-                  <div className={`p-5 rounded-xl border ${
-                    emailJob.isSelected
-                      ? "bg-emerald-950/40 border-emerald-500/40 text-emerald-300"
-                      : "bg-amber-950/40 border-amber-500/40 text-amber-300"
-                  }`}>
-                    <div className="text-xs font-mono font-bold uppercase tracking-wider mb-1">
-                      Final Assessment Verdict
+                  {/* Interview Completed Notification Card (Replaces website verdict & score breakdown) */}
+                  <div className="glass-card p-6 space-y-4 border-sky-500/30">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-xl bg-sky-500/10 border border-sky-500/30 flex items-center justify-center text-sky-400">
+                        <CheckCircle2 className="w-5 h-5" />
+                      </div>
+                      <div>
+                        <div className="text-xs font-mono text-sky-400 font-bold uppercase tracking-wider">
+                          Technical Assessment Completed
+                        </div>
+                        <div className="text-base font-bold text-white">
+                          Interview Concluded
+                        </div>
+                      </div>
                     </div>
-                    <div className="text-xl font-extrabold flex items-center gap-2">
-                      <CheckCircle2 className="w-5 h-5" />
-                      <span>{emailJob.verdictLabel}</span>
-                    </div>
-                    <p className="text-xs mt-2 text-slate-300 leading-relaxed">
-                      {scorecard.executiveSummary}
-                    </p>
-                  </div>
 
-                  {/* Ratings Matrix */}
-                  <div className="glass-card p-4 space-y-3">
-                    <div className="text-xs font-mono text-slate-400 font-bold uppercase">
-                      Evaluation Breakdown
-                    </div>
-                    <div className="grid grid-cols-3 gap-2 text-center">
-                      <div className="p-2.5 rounded-lg bg-slate-900 border border-slate-800">
-                        <div className="text-xs text-slate-400">Technical</div>
-                        <div className="text-base font-bold text-sky-400">{scorecard.technicalRating}/10</div>
+                    <p className="text-xs text-slate-300 leading-relaxed">
+                      Thank you for completing your technical interview for the <strong className="text-white">{selectedRole}</strong> position at HR Contract.
+                    </p>
+
+                    <div className="p-4 rounded-xl bg-slate-900/90 border border-slate-800 space-y-2">
+                      <div className="flex items-center gap-2 text-emerald-400 font-semibold text-xs">
+                        <Mail className="w-4 h-4" />
+                        <span>Official Outcome Communicated Privately</span>
                       </div>
-                      <div className="p-2.5 rounded-lg bg-slate-900 border border-slate-800">
-                        <div className="text-xs text-slate-400">Problem Solving</div>
-                        <div className="text-base font-bold text-purple-400">{scorecard.problemSolvingRating}/10</div>
+                      <p className="text-slate-400 text-xs leading-relaxed">
+                        In accordance with formal enterprise hiring procedures and candidate privacy standards, official interview evaluations and decision outcomes are communicated privately. Your decision update has been dispatched to:
+                      </p>
+                      <div className="font-mono text-sky-300 font-bold text-xs bg-slate-950 p-2.5 rounded-lg border border-slate-800 break-all">
+                        {emailJob.candidateEmail}
                       </div>
-                      <div className="p-2.5 rounded-lg bg-slate-900 border border-slate-800">
-                        <div className="text-xs text-slate-400">Communication</div>
-                        <div className="text-base font-bold text-emerald-400">{scorecard.communicationRating}/10</div>
-                      </div>
+                      <p className="text-[11px] text-slate-500">
+                        Please review your email inbox for the comprehensive update from our Talent Acquisition Committee.
+                      </p>
                     </div>
                   </div>
 
                   {/* Autonomous Email Dispatcher */}
-                  <div className="glass-card p-5 space-y-4 border-sky-500/30">
+                  <div className="glass-card p-5 space-y-4 border-slate-800">
                     <div className="flex items-center justify-between text-xs font-mono">
                       <div className="flex items-center gap-1.5 text-sky-400 font-bold">
                         <Mail className="w-4 h-4" />
@@ -691,7 +689,7 @@ export default function Home() {
                       </button>
                     ) : (
                       <div className="p-2.5 rounded-lg bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs font-mono text-center">
-                        ✓ Dispatched successfully to candidate
+                        ✓ Dispatched successfully to candidate email
                       </div>
                     )}
 
@@ -701,7 +699,7 @@ export default function Home() {
                       onClick={() => setShowEmailPreview(!showEmailPreview)}
                       className="w-full text-xs text-sky-400 hover:text-sky-300 font-mono py-1 flex items-center justify-center gap-1"
                     >
-                      <span>{showEmailPreview ? "Hide Rendered Email" : "Preview Candidate Email Copy"}</span>
+                      <span>{showEmailPreview ? "Hide Email Copy" : "Preview Formal Email Copy"}</span>
                       <ChevronDown className={`w-3.5 h-3.5 transition-transform ${showEmailPreview ? "rotate-180" : ""}`} />
                     </button>
 
@@ -714,17 +712,24 @@ export default function Home() {
                   </div>
                 </div>
               ) : (
-                /* Pre-evaluation standby card */
-                <div className="glass-card p-6 space-y-4">
-                  <div className="font-mono text-xs text-slate-400 font-bold uppercase tracking-wider">
-                    // Active Evaluation Engine
+                /* Pre-evaluation sidebar card - Clean guidelines without 3-6 months spoiler */
+                <div className="glass-card p-6 space-y-4 border-slate-800">
+                  <div className="flex items-center gap-2 font-mono text-xs text-sky-400 font-bold uppercase tracking-wider">
+                    <Bot className="w-4 h-4" />
+                    <span>Technical Interview in Progress</span>
                   </div>
-                  <div className="space-y-2 text-xs text-slate-300">
-                    <p>• <b>Anti-Bias Sanitization:</b> Active</p>
-                    <p>• <b>Policy RAG Anchors:</b> Hiring policy.txt</p>
-                    <p>• <b>Email Dispatch:</b> 2-minute timer on finish</p>
-                    <p>• <b>Candidate Score:</b> Kept internal; never disclosed</p>
-                    <p>• <b>Reapply Invitation:</b> 3-6 months for non-selected</p>
+                  <div className="space-y-3 text-xs text-slate-300 leading-relaxed">
+                    <div className="p-3 rounded-lg bg-slate-900 border border-slate-800">
+                      <div className="text-slate-400 text-[11px] font-medium uppercase font-mono">Position Under Evaluation</div>
+                      <div className="font-bold text-white text-sm mt-0.5">{selectedRole}</div>
+                    </div>
+                    <div className="space-y-2 text-slate-300">
+                      <p className="text-slate-400 font-semibold text-xs">Interview Guidelines:</p>
+                      <p>• Provide structured responses detailing technical architecture & implementation.</p>
+                      <p>• Discuss engineering trade-offs, scalability, and system resilience.</p>
+                      <p>• All challenges are anchored in formal role responsibilities.</p>
+                      <p>• Your formal evaluation will be communicated directly to your email upon conclusion.</p>
+                    </div>
                   </div>
                 </div>
               )}
