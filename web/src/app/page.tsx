@@ -167,7 +167,7 @@ export default function Home() {
       setCandidate(parsedCandidate);
       setInterviewStarted(true);
 
-      const greeting = `Hello ${parsedCandidate.fullName}. 👋 My name is David, your Technical AI HR Recruiter for today. Welcome to your formal interview for the ${selectedRole} position at HR Contract.\n\nI have reviewed your CV, and your contact email (${parsedCandidate.email}) has been automatically indexed. To begin, please introduce yourself, summarizing your professional engineering background and core technical expertise.`;
+      const greeting = `Hello ${parsedCandidate.fullName}. 👋 My name is David, your AI HR Recruiter for today. Welcome to your formal interview for the ${selectedRole} position at HR Contract.\n\nI have reviewed your CV, and your contact email (${parsedCandidate.email}) has been automatically indexed. To begin, please introduce yourself, summarizing your professional engineering background and core technical expertise.`;
 
       setMessages([{ role: "assistant", content: greeting }]);
     } catch (err: any) {
