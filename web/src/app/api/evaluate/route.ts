@@ -91,25 +91,32 @@ Do not wrap with markdown backticks. Return raw JSON only.
       scorecard.strengths || []
     );
 
+    // Dispatch email automatically and immediately (zero delay / no timer)
+    const targetEmail = candidate?.email || "candidate@example.com";
+    const dispatchResult = await sendEmailThroughSMTP(
+      targetEmail,
+      emailContent.subject,
+      emailContent.plainBody,
+      emailContent.htmlBody
+    );
+
     const jobId = `job_${Date.now()}_${(candidate?.fullName || "applicant").toLowerCase().replace(/\s+/g, "_")}`;
-    const scheduledDate = new Date(Date.now() + 120 * 1000);
-    const scheduledFor = scheduledDate.toLocaleTimeString();
 
     const jobRecord: EmailDispatchJob = {
       jobId,
       candidateName: candidate?.fullName || "Candidate",
-      candidateEmail: candidate?.email || "candidate@example.com",
+      candidateEmail: targetEmail,
       jobTitle,
       isSelected,
       verdictLabel: isSelected ? "SELECTED FOR HIRE" : "NOT SELECTED",
-      status: "QUEUED",
+      status: dispatchResult.success ? "DELIVERED" : "FAILED",
       subject: emailContent.subject,
       plainBody: emailContent.plainBody,
       htmlBody: emailContent.htmlBody,
-      scheduledFor,
-      targetTimestamp: Math.floor(Date.now() / 1000) + 120,
-      deliveryType: "SCHEDULED_AUTOMATION",
-      deliveryLog: "Scheduled to dispatch automatically in 2 minutes post-interview."
+      scheduledFor: "IMMEDIATE",
+      targetTimestamp: Math.floor(Date.now() / 1000),
+      deliveryType: "INSTANT_AUTOMATIC",
+      deliveryLog: dispatchResult.log
     };
 
     saveJob(jobRecord);

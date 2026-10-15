@@ -115,7 +115,6 @@ export default function Home() {
   const [isEvaluating, setIsEvaluating] = useState(false);
   const [scorecard, setScorecard] = useState<Scorecard | null>(null);
   const [emailJob, setEmailJob] = useState<EmailJob | null>(null);
-  const [timeLeft, setTimeLeft] = useState<number>(120);
   const [showEmailPreview, setShowEmailPreview] = useState(false);
 
   const chatBottomRef = useRef<HTMLDivElement>(null);
@@ -124,20 +123,6 @@ export default function Home() {
   useEffect(() => {
     chatBottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages, isAITyping]);
-
-  // Timer countdown
-  useEffect(() => {
-    if (!emailJob || emailJob.status === "DELIVERED") return;
-    const interval = setInterval(() => {
-      const now = Math.floor(Date.now() / 1000);
-      const remaining = Math.max(0, emailJob.targetTimestamp - now);
-      setTimeLeft(remaining);
-      if (remaining === 0 && emailJob.status === "QUEUED") {
-        handleTriggerEmail();
-      }
-    }, 1000);
-    return () => clearInterval(interval);
-  }, [emailJob]);
 
   // Handle CV Ingest
   const handleStartInterview = async () => {
@@ -268,22 +253,6 @@ export default function Home() {
       }
     } finally {
       setIsEvaluating(false);
-    }
-  };
-
-  // Trigger immediate email dispatch
-  const handleTriggerEmail = async () => {
-    if (!emailJob) return;
-    try {
-      const res = await fetch("/api/send-email", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ jobId: emailJob.jobId })
-      });
-      const data = await res.json();
-      if (data.job) setEmailJob(data.job);
-    } catch (err) {
-      console.error("Manual email dispatch failed:", err);
     }
   };
 
@@ -619,7 +588,7 @@ export default function Home() {
                 </div>
               ) : scorecard && emailJob ? (
                 <div className="space-y-5">
-                  {/* Interview Completed Notification Card (Replaces website verdict & score breakdown) */}
+                  {/* Interview Completed Notification Card (Private outcome, no website scores or timer bar) */}
                   <div className="glass-card p-6 space-y-4 border-sky-500/30">
                     <div className="flex items-center gap-3">
                       <div className="w-10 h-10 rounded-xl bg-sky-500/10 border border-sky-500/30 flex items-center justify-center text-sky-400">
@@ -639,59 +608,27 @@ export default function Home() {
                       Thank you for completing your technical interview for the <strong className="text-white">{selectedRole}</strong> position at HR Contract.
                     </p>
 
-                    <div className="p-4 rounded-xl bg-slate-900/90 border border-slate-800 space-y-2">
+                    <div className="p-4 rounded-xl bg-slate-900/90 border border-slate-800 space-y-3">
                       <div className="flex items-center gap-2 text-emerald-400 font-semibold text-xs">
                         <Mail className="w-4 h-4" />
                         <span>Official Outcome Communicated Privately</span>
                       </div>
                       <p className="text-slate-400 text-xs leading-relaxed">
-                        In accordance with formal enterprise hiring procedures and candidate privacy standards, official interview evaluations and decision outcomes are communicated privately. Your decision update has been dispatched to:
+                        In accordance with formal enterprise hiring procedures and candidate privacy standards, official evaluations and decision outcomes are communicated privately. Your decision update has been automatically dispatched to:
                       </p>
                       <div className="font-mono text-sky-300 font-bold text-xs bg-slate-950 p-2.5 rounded-lg border border-slate-800 break-all">
                         {emailJob.candidateEmail}
                       </div>
+
+                      <div className="p-2.5 rounded-lg bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs font-mono flex items-center gap-2">
+                        <CheckCircle2 className="w-4 h-4 shrink-0" />
+                        <span>Official decision email automatically sent to candidate</span>
+                      </div>
+
                       <p className="text-[11px] text-slate-500">
                         Please review your email inbox for the comprehensive update from our Talent Acquisition Committee.
                       </p>
                     </div>
-                  </div>
-
-                  {/* Autonomous Email Dispatcher */}
-                  <div className="glass-card p-5 space-y-4 border-slate-800">
-                    <div className="flex items-center justify-between text-xs font-mono">
-                      <div className="flex items-center gap-1.5 text-sky-400 font-bold">
-                        <Mail className="w-4 h-4" />
-                        <span>AUTONOMOUS EMAIL DISPATCH</span>
-                      </div>
-                      <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${
-                        emailJob.status === "DELIVERED"
-                          ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/30"
-                          : "bg-amber-500/10 text-amber-400 border border-amber-500/30"
-                      }`}>
-                        {emailJob.status === "DELIVERED" ? "✓ DISPATCHED" : `⏳ ${timeLeft}s REMAINING`}
-                      </span>
-                    </div>
-
-                    <div className="text-xs text-slate-300 space-y-1">
-                      <div><b>Recipient:</b> <span className="font-mono text-sky-300">{emailJob.candidateEmail}</span></div>
-                      <div><b>Subject:</b> <span className="text-slate-400">{emailJob.subject}</span></div>
-                      <div className="text-[11px] text-slate-400 mt-1">{emailJob.deliveryLog}</div>
-                    </div>
-
-                    {emailJob.status !== "DELIVERED" ? (
-                      <button
-                        type="button"
-                        onClick={handleTriggerEmail}
-                        className="w-full py-2.5 px-4 rounded-lg bg-sky-500 hover:bg-sky-400 text-slate-950 font-bold text-xs font-mono transition-all flex items-center justify-center gap-2"
-                      >
-                        <Sparkles className="w-3.5 h-3.5" />
-                        <span>Send Email Now (Bypass 2-min timer)</span>
-                      </button>
-                    ) : (
-                      <div className="p-2.5 rounded-lg bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs font-mono text-center">
-                        ✓ Dispatched successfully to candidate email
-                      </div>
-                    )}
 
                     {/* Email Live Preview Toggle */}
                     <button
