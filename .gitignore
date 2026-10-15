@@ -1,0 +1,4 @@
+.env
+ai_hr_agent/reports/
+ai_hr_agent/resumes/
+__pycache__/
