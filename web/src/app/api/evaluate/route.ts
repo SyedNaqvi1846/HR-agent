@@ -53,7 +53,7 @@ Do not wrap with markdown backticks. Return raw JSON only.
     const customKey = req.headers.get("x-gemini-api-key") || "";
     const ai = getGenAIClient(customKey);
     const response = await ai.models.generateContent({
-      model: "gemini-2.5-flash",
+      model: "gemini-3.5-flash-lite",
       contents: evalPrompt,
       config: {
         responseMimeType: "application/json"

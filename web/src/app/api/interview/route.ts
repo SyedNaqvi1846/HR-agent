@@ -21,27 +21,29 @@ ${HIRING_POLICY}
 """
 
 CRITICAL RULES (STRICTLY ENFORCED):
-1. ABSOLUTELY NO EXAMPLES, HINTS, OR SPOON-FEEDING:
+1. ANCHOR QUESTIONS IN COMPANY HIRING POLICY FOR THE SELECTED ROLE (${jobTitle}):
+   - In stage 'JOB_QUESTIONS', you MUST ask a demanding technical problem directly based on the Responsibilities & Duties in the Company Hiring Policy above.
+   - For Question 1: Focus on System Architecture and Resilient API/Service Design (Duty 1 & 2).
+   - For Question 2: Focus on Database Performance, Query Optimization, and Concurrency/Deadlock Bottlenecks (Duty 7).
+   - For Question 3: Focus on Scalable Frontend Architecture, State Synchronization, or Distributed Cloud Tradeoffs (Duty 3 & 8).
+   - ALWAYS formulate a concrete, challenging scenario reflecting these duties.
+   - ALWAYS end your turn with a clear, direct, focused technical question. NEVER send a generic acknowledgment without a question.
+
+2. ABSOLUTELY NO EXAMPLES, HINTS, OR SPOON-FEEDING:
    - You MUST NOT give any examples, suggestions, hints, or multiple-choice style ideas to the candidate.
    - NEVER use phrases like "For example...", "For instance...", "such as...", "like X or Y...", or "you could consider...".
    - Do NOT suggest specific tools, libraries, architectural patterns, or potential answers in your question.
    - Force the candidate to produce the full solution, architecture, and technology choices completely from their own knowledge.
 
-2. NEVER ASK FOR EMAIL OR CONTACT INFO:
+3. NEVER ASK FOR EMAIL OR CONTACT INFO:
    - NEVER ask the candidate for their email address, phone number, or personal contact details at any point.
    - Their contact information has already been retrieved directly from their uploaded CV/resume.
 
-3. ASK HARD TECHNICAL QUESTIONS IN A FORMAL INTERVIEW MANNER:
-   - In stage 'JOB_QUESTIONS', ask deep, challenging, scenario-based technical questions reflecting the Company Hiring Policy.
-   - Target complex engineering problems: race conditions, concurrency bottlenecks, deadlocks, distributed transaction consistency, cache invalidation anomalies, database query optimization under high volume, memory leaks, failure recovery, or system latency degradation.
-   - Scrutinize their previous answer directly and press them on the underlying mechanics, tradeoffs, and failure modes.
-   - Ask exactly ONE focused, demanding technical question at a time. Keep responses concise (2-4 sentences max).
-
-4. CURRENT INTERVIEW STAGE: ${stage} (Questions asked so far: ${questionCount} of ${maxQuestions})
+4. CURRENT INTERVIEW STAGE: ${stage} (Technical Question Number: ${Math.min(questionCount, maxQuestions)} of ${maxQuestions})
 
 5. STAGE-SPECIFIC BEHAVIOR:
    - If stage is 'JOB_QUESTIONS':
-     Ask ONE hard, rigorous technical question directly related to ${jobTitle} and their CV claims, grounded in the Company Hiring Policy duties. Remember: NO hints or examples.
+     Analyze what the candidate said so far, acknowledge their previous statement in 1 sentence, and immediately ask your challenging technical question tied directly to the Hiring Policy duties for ${jobTitle}.
    - If stage is 'ASK_CANDIDATE_QUERIES':
      Acknowledge their final answer professionally. Formally open the floor:
      "That concludes our technical assessment questions for this role. Before we wrap up, do you have any questions for me regarding our engineering standards, team structure, or this position?"
@@ -55,17 +57,17 @@ CRITICAL RULES (STRICTLY ENFORCED):
       (m: { role: string; content: string }) => `${m.role.toUpperCase()}: ${m.content}`
     );
 
-    const fullPrompt = `${systemInstruction}\n\nINTERVIEW TRANSCRIPT SO FAR:\n${transcriptLines.join("\n")}\n\nRespond as David (AI Bar-Raiser):`;
+    const fullPrompt = `${systemInstruction}\n\nINTERVIEW TRANSCRIPT SO FAR:\n${transcriptLines.join("\n")}\n\nRespond as David (AI Bar-Raiser) by asking your technical question for ${jobTitle}:`;
 
     const customKey = req.headers.get("x-gemini-api-key") || "";
     const ai = getGenAIClient(customKey);
     const response = await ai.models.generateContent({
-      model: "gemini-2.5-flash",
+      model: "gemini-3.5-flash-lite",
       contents: fullPrompt
     });
 
     return NextResponse.json({
-      text: response.text?.trim() || "Thank you for your response. Let us proceed to the next technical topic."
+      text: response.text?.trim() || "Let us evaluate your system design reasoning: How would you architect a high-traffic microservices system ensuring data consistency across distributed services?"
     });
   } catch (error: any) {
     console.error("Interview API error:", error);
