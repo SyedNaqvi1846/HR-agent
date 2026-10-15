@@ -50,7 +50,8 @@ EVALUATION INSTRUCTIONS:
 Do not wrap with markdown backticks. Return raw JSON only.
 `;
 
-    const ai = getGenAIClient();
+    const customKey = req.headers.get("x-gemini-api-key") || "";
+    const ai = getGenAIClient(customKey);
     const response = await ai.models.generateContent({
       model: "gemini-2.5-flash",
       contents: evalPrompt,

@@ -16,7 +16,8 @@ import {
   Sparkles,
   Bot,
   Terminal,
-  ExternalLink
+  ExternalLink,
+  Key
 } from "lucide-react";
 
 interface Candidate {
@@ -95,6 +96,13 @@ export default function Home() {
   const [candidate, setCandidate] = useState<Candidate | null>(null);
   const [isIngesting, setIsIngesting] = useState(false);
   const [interviewStarted, setInterviewStarted] = useState(false);
+  const [apiKey, setApiKey] = useState<string>("");
+  const [showKeyModal, setShowKeyModal] = useState<boolean>(false);
+
+  useEffect(() => {
+    const saved = localStorage.getItem("hr_gemini_api_key");
+    if (saved) setApiKey(saved);
+  }, []);
 
   // Chat state
   const [messages, setMessages] = useState<Message[]>([]);
@@ -147,8 +155,12 @@ export default function Home() {
         formData.append("demoId", demoId);
       }
 
+      const headers: Record<string, string> = {};
+      if (apiKey.trim()) headers["x-gemini-api-key"] = apiKey.trim();
+
       const res = await fetch("/api/ingest", {
         method: "POST",
+        headers,
         body: formData
       });
 
@@ -163,7 +175,11 @@ export default function Home() {
 
       setMessages([{ role: "assistant", content: greeting }]);
     } catch (err: any) {
-      alert(`Error initializing interview: ${err.message}`);
+      if (err.message && err.message.includes("GEMINI_API_KEY")) {
+        setShowKeyModal(true);
+      } else {
+        alert(`Error initializing interview: ${err.message}`);
+      }
     } finally {
       setIsIngesting(false);
     }
@@ -186,9 +202,12 @@ export default function Home() {
     if (nextCount > maxQ) stage = "CONCLUSION";
 
     try {
+      const headers: Record<string, string> = { "Content-Type": "application/json" };
+      if (apiKey.trim()) headers["x-gemini-api-key"] = apiKey.trim();
+
       const res = await fetch("/api/interview", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers,
         body: JSON.stringify({
           messages: newMessages,
           candidate,
@@ -211,6 +230,9 @@ export default function Home() {
       }
     } catch (err: any) {
       console.error(err);
+      if (err.message && err.message.includes("GEMINI_API_KEY")) {
+        setShowKeyModal(true);
+      }
       setMessages((prev) => [
         ...prev,
         { role: "assistant", content: "Thank you for the detailed response. Let us continue with the technical discussion." }
@@ -224,9 +246,12 @@ export default function Home() {
   const triggerEvaluation = async (finalMessages: Message[]) => {
     setIsEvaluating(true);
     try {
+      const headers: Record<string, string> = { "Content-Type": "application/json" };
+      if (apiKey.trim()) headers["x-gemini-api-key"] = apiKey.trim();
+
       const res = await fetch("/api/evaluate", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers,
         body: JSON.stringify({
           messages: finalMessages,
           candidate,
@@ -240,7 +265,11 @@ export default function Home() {
       setScorecard(data.scorecard);
       setEmailJob(data.emailJob);
     } catch (err: any) {
-      alert(`Evaluation error: ${err.message}`);
+      if (err.message && err.message.includes("GEMINI_API_KEY")) {
+        setShowKeyModal(true);
+      } else {
+        alert(`Evaluation error: ${err.message}`);
+      }
     } finally {
       setIsEvaluating(false);
     }
@@ -284,6 +313,19 @@ export default function Home() {
         </div>
 
         <div className="flex items-center gap-3">
+          <button
+            type="button"
+            onClick={() => setShowKeyModal(true)}
+            className={`text-xs font-mono px-3 py-1.5 rounded-lg border transition-all flex items-center gap-1.5 ${
+              apiKey
+                ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/30 hover:bg-emerald-500/20"
+                : "bg-amber-500/10 text-amber-400 border-amber-500/30 hover:bg-amber-500/20"
+            }`}
+          >
+            <Key className="w-3.5 h-3.5" />
+            <span>{apiKey ? "API Key Configured" : "Set API Key"}</span>
+          </button>
+
           <div className="hidden sm:flex items-center gap-2 text-xs font-mono px-3 py-1.5 rounded-lg bg-slate-900 border border-slate-800 text-slate-400">
             <span className="pulse-dot"></span>
             <span>PUBLIC DEPLOYMENT READY</span>
@@ -749,6 +791,64 @@ export default function Home() {
         <p>HR Contract Autonomous Technical Hiring & Bar-Raiser Portal • Built with Next.js 16 & Google GenAI</p>
         <p>Demographics Sanitized • Anti-Bias Verified • Zero-Hint Technical Evaluation Standard</p>
       </footer>
+
+      {/* API Key Modal */}
+      {showKeyModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
+          <div className="glass-card max-w-md w-full p-6 space-y-4 border-sky-500/40 shadow-2xl relative">
+            <div className="flex items-center justify-between pb-3 border-b border-slate-800">
+              <div className="flex items-center gap-2 font-bold text-white text-base">
+                <Key className="w-5 h-5 text-amber-400" />
+                <span>Gemini API Key Setup</span>
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowKeyModal(false)}
+                className="text-slate-400 hover:text-white text-sm"
+              >
+                ✕
+              </button>
+            </div>
+
+            <div className="text-xs text-slate-300 space-y-3 leading-relaxed">
+              <p>
+                To power the autonomous interview and scoring models, the app needs a Google Gemini API Key.
+              </p>
+
+              <div className="p-3 rounded-lg bg-sky-500/10 border border-sky-500/20 text-sky-200">
+                <div className="font-bold mb-1">Option 1: Add to Vercel (Recommended for Public Users)</div>
+                <div className="text-[11px] text-slate-300">
+                  In your Vercel Dashboard → Project Settings → <b>Environment Variables</b> → Add <b>GEMINI_API_KEY</b> with your key, then redeploy.
+                </div>
+              </div>
+
+              <div className="p-3 rounded-lg bg-slate-900 border border-slate-800 text-slate-300">
+                <div className="font-bold text-white mb-1">Option 2: Enter Key for This Browser</div>
+                <input
+                  type="password"
+                  value={apiKey}
+                  onChange={(e) => setApiKey(e.target.value)}
+                  placeholder="Paste AI Studio Gemini Key (AIzaSy...)"
+                  className="w-full mt-1 px-3 py-2 rounded-lg bg-slate-950 border border-slate-700 focus:border-sky-500 text-xs font-mono text-white outline-none"
+                />
+              </div>
+            </div>
+
+            <div className="flex justify-end gap-2 pt-2">
+              <button
+                type="button"
+                onClick={() => {
+                  localStorage.setItem("hr_gemini_api_key", apiKey.trim());
+                  setShowKeyModal(false);
+                }}
+                className="px-4 py-2 rounded-lg bg-sky-500 hover:bg-sky-400 text-slate-950 font-bold text-xs font-mono transition-all"
+              >
+                Save & Continue
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </main>
   );
 }

@@ -1,16 +1,13 @@
 import { GoogleGenAI } from "@google/genai";
 
-let genAIClient: GoogleGenAI | null = null;
-
-export function getGenAIClient(): GoogleGenAI {
-  const apiKey = process.env.GEMINI_API_KEY || "";
+export function getGenAIClient(customApiKey?: string): GoogleGenAI {
+  const apiKey = (customApiKey || "").trim() || process.env.GEMINI_API_KEY || "";
   if (!apiKey) {
-    throw new Error("GEMINI_API_KEY is not defined in environment variables.");
+    throw new Error(
+      "GEMINI_API_KEY is not defined in environment variables. Please add GEMINI_API_KEY to your Vercel Dashboard (Settings > Environment Variables) or provide an API Key."
+    );
   }
-  if (!genAIClient) {
-    genAIClient = new GoogleGenAI({ apiKey });
-  }
-  return genAIClient;
+  return new GoogleGenAI({ apiKey });
 }
 
 export function extractEmailFromRawText(text: string): string {

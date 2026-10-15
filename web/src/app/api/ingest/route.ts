@@ -45,7 +45,8 @@ export async function POST(req: NextRequest) {
     const regexEmail = extractEmailFromRawText(resumeText);
 
     // Call Gemini to structure candidate profile
-    const ai = getGenAIClient();
+    const customKey = req.headers.get("x-gemini-api-key") || (formData.get("apiKey") as string | null) || "";
+    const ai = getGenAIClient(customKey);
     const prompt = `You are an expert HR Parser. Extract factual identity and candidate background from this CV into raw JSON.
 Crucial: Accurately extract their real full name from the top.
 Crucial: Accurately extract their contact email address from the CV header or contact section.

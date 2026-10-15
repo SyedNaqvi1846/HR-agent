@@ -57,7 +57,8 @@ CRITICAL RULES (STRICTLY ENFORCED):
 
     const fullPrompt = `${systemInstruction}\n\nINTERVIEW TRANSCRIPT SO FAR:\n${transcriptLines.join("\n")}\n\nRespond as David (AI Bar-Raiser):`;
 
-    const ai = getGenAIClient();
+    const customKey = req.headers.get("x-gemini-api-key") || "";
+    const ai = getGenAIClient(customKey);
     const response = await ai.models.generateContent({
       model: "gemini-2.5-flash",
       contents: fullPrompt
